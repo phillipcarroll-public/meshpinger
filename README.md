@@ -123,5 +123,3 @@ This tool is designed to be deployed via Ansible. An example role is provided in
 2.  Installing dependencies (or `.whl` files for air-gapped nodes).
 3.  Executing the mesh test across the entire fleet simultaneously.
 4.  Fetching all JSON results back to the controller for central reporting.
-
-[View Ansible Example](https://www.google.com/search?q=./ansible)
