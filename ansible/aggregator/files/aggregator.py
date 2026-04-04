@@ -3,6 +3,28 @@ import glob
 import os
 from datetime import datetime
 
+def deep_merge(source, destination):
+    """
+    Recursively merges source dict into destination dict.
+    This ensures that if multiple files have the same top-level node name,
+    their internal tests and errors are combined rather than overwritten.
+    """
+    for key, value in source.items():
+        if isinstance(value, dict):
+            # If the key is a dictionary, grab it from destination (or create an empty one) and recurse
+            node = destination.setdefault(key, {})
+            deep_merge(value, node)
+        elif isinstance(value, list):
+            # If it's a list (like your 'failures' array), combine them
+            if key in destination and isinstance(destination[key], list):
+                destination[key].extend(value)
+            else:
+                destination[key] = value
+        else:
+            # Overwrite simple string/int values (like error messages or status codes)
+            destination[key] = value
+    return destination
+
 def aggregate_jsons():
     # Set up paths
     output_dir = "/var/tmp/aggregator"
@@ -13,33 +35,26 @@ def aggregate_jsons():
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    # We will use a dictionary, but key the data by filename to prevent overwrites
     final_data = {}
-    
-    # Updated pattern: Looks in all immediate subdirectories (e.g., aggregator, node1)
-    # If your folders are actually inside a 'roles' folder, change this back to "roles/*/files/logs/*.json"
     search_pattern = "*/files/logs/*.json" 
     
     found_files = glob.glob(search_pattern)
 
-    # Debug print to verify files are actually being found
     print(f"DEBUG: Found {len(found_files)} files matching '{search_pattern}'")
 
     if not found_files:
-        print("WARNING: No JSON files were found. Check your search_pattern and current directory.")
+        print("WARNING: No JSON files were found. Check your search_pattern.")
         return
 
     for filename in found_files:
-        # Skip the output file if it accidentally gets caught in the glob
         if "aggregator-" in filename:
             continue
             
         with open(filename, 'r') as f:
             try:
                 data = json.load(f)
-                # Store the data under its filename so nodes don't overwrite each other's keys
-                # e.g. final_data["node1/files/logs/ping.json"] = { ... }
-                final_data[filename] = data
+                # Deep merge the data directly into final_data
+                deep_merge(data, final_data)
             except json.JSONDecodeError:
                 print(f"WARNING: Could not parse JSON in {filename}. Skipping.")
                 continue
@@ -47,7 +62,8 @@ def aggregate_jsons():
     with open(output_file, 'w') as f:
         json.dump(final_data, f, indent=4)
 
-    print(f"Successfully aggregated {len(final_data)} files into {output_file}")
+    # Count top-level keys to show how many unique nodes were aggregated
+    print(f"Successfully aggregated data for {len(final_data.keys())} unique nodes into {output_file}")
 
 if __name__ == "__main__":
     aggregate_jsons()
