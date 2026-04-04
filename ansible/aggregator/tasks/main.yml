@@ -35,5 +35,5 @@
   ansible.builtin.copy:
     src: "{{ item.path }}"
     dest: "{{ role_path }}/files/logs/"
-    flat: yes
+    remote_src: yes
   loop: "{{ found_results.files }}"
