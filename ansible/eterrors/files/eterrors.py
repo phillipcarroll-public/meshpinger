@@ -9,7 +9,6 @@ from datetime import datetime
 
 def get_args():
     parser = argparse.ArgumentParser(description="Node Ethtool Error Gatherer")
-    # Updated default directory name
     parser.add_argument("--outdir", default="/var/tmp/ethtool_errors", help="Directory to save JSON output")
     return parser.parse_args()
 
@@ -23,6 +22,7 @@ def get_interfaces():
 
 def gather_ethtool_stats(interfaces):
     hostname = socket.gethostname().split('.')[0]
+    # Pattern to catch potential error indicators
     error_pattern = re.compile(
         r'err|over|drop|bad|pause|full|busy|exhausted|not_reusable|aborted|invalid|no_buff|colli', 
         re.IGNORECASE
@@ -41,6 +41,7 @@ def gather_ethtool_stats(interfaces):
                         if len(parts) == 2:
                             metric_name = parts[0].strip()
                             metric_value = parts[1].strip()
+                            # Only record if the error count is greater than 0
                             if metric_value != "0":
                                 try:
                                     stats[metric_name] = int(metric_value)
@@ -58,18 +59,24 @@ def main():
     interfaces = get_interfaces()
     hostname, results = gather_ethtool_stats(interfaces)
 
+    # Determine global status: if results dict is not empty, errors were found.
+    overall_status = "fail" if results else "pass"
+
     timestamp = datetime.now().strftime("%Y%m%d-%H%M")
-    # Updated filename naming convention
     json_filename = f"{hostname}-eterrors-{timestamp}.json"
     
     os.makedirs(args.outdir, exist_ok=True)
     out_filepath = os.path.join(args.outdir, json_filename)
     
+    # Structure matches the Ping Tester for easier aggregation
     output_data = {
         hostname: {
             "tests": {
                 "ethtool_errors": {
-                    timestamp: results
+                    timestamp: {
+                        "status": overall_status,
+                        "errors_found": results
+                    }
                 }
             }
         }
@@ -78,6 +85,7 @@ def main():
     with open(out_filepath, 'w') as jf:
         json.dump(output_data, jf, indent=2)
 
+    print(f"Node: {hostname} | Overall Status: {overall_status.upper()}")
     print(f"Results saved to {out_filepath}")
 
 if __name__ == "__main__":
