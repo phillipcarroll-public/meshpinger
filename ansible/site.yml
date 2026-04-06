@@ -12,6 +12,6 @@
   hosts: localhost
   connection: local
   gather_facts: no
-  tags: aggregatog
+  tags: aggregator
   roles:
     - role: aggregator
