@@ -48,7 +48,7 @@ def generate_html():
 
         if not test_results:
             return 'red'
-        
+
         passes = test_results.count('pass')
         total = len(test_results)
 
@@ -93,7 +93,7 @@ def generate_html():
             <div class="sticky top-6 z-50 bg-slate-900/90 backdrop-blur-lg p-3 rounded-xl border border-slate-700 shadow-2xl mb-8 flex flex-col sm:flex-row gap-3">
                 <input type="text" x-model="search" placeholder="Search hostname..."
                        class="flex-grow bg-slate-800 border-slate-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
-                
+
                 <div class="flex rounded-lg overflow-hidden border border-slate-600 font-bold text-xs">
                     <button @click="filter = 'all'" :class="filter === 'all' ? 'bg-slate-600 text-white' : 'bg-slate-800 text-slate-400'" class="px-4 py-2">ALL</button>
                     <button @click="filter = 'red'" :class="filter === 'red' ? 'bg-red-600 text-white' : 'bg-slate-800 text-slate-400'" class="px-4 py-2">FAIL</button>
@@ -107,10 +107,10 @@ def generate_html():
                 <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg"
                      x-show="('{{ node_name }}'.toLowerCase().includes(search.toLowerCase())) && (filter === 'all' || filter === '{{ status }}')"
                      x-data="{ nodeOpen: false }">
-                    
+
                     <div @click="nodeOpen = !nodeOpen" class="cursor-pointer p-4 flex items-center justify-between hover:bg-slate-800/50 transition-colors">
                         <div class="flex items-center gap-4">
-                            <div class="w-3 h-3 rounded-full 
+                            <div class="w-3 h-3 rounded-full
                                 {{ 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' if status == 'green' }}
                                 {{ 'bg-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.5)]' if status == 'yellow' }}
                                 {{ 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)] animate-pulse' if status == 'red' }}">
@@ -128,7 +128,8 @@ def generate_html():
                             <div x-data="{ modOpen: false }" class="border border-slate-700/50 rounded-lg overflow-hidden">
                                 <div @click="modOpen = !modOpen" class="flex items-center justify-between p-3 bg-slate-800/40 cursor-pointer hover:bg-slate-800/80">
                                     <div class="flex items-center gap-3">
-                                        <span class="text-[10px] px-2 py-0.5 rounded font-black {{ 'bg-emerald-500/20 text-emerald-400' if run_data.status == 'pass' else 'bg-red-500/20 text-red-400' }}">
+                                        <span class="text-[10px] px-2 py-0.5 rounded font-black {{ 'bg-emerald-500/20 text-emerald-400' if run_data.status == 'pass' else 'bg-red
+-500/20 text-red-400' }}">
                                             {{ run_data.status | upper }}
                                         </span>
                                         <span class="text-sm font-semibold text-slate-300">{{ test_name }}</span>
