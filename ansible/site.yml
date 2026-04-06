@@ -5,11 +5,13 @@
       tags: meshpinger
     - role: eterrors
       tags: eterrors
+    - role: pciedegraded
+      tags: pciedegraded
 
 - name: Aggregate results on the controller
   hosts: localhost
   connection: local
   gather_facts: no
-  tags: aggregator
+  tags: aggregatog
   roles:
     - role: aggregator
